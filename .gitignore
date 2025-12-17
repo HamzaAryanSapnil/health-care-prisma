@@ -1,9 +1,14 @@
 node_modules
-# Keep environment variables out of version control
 .env
-
-/generated/prisma
-
-.vercel
-
-render.yaml
+.env.test
+.env.local
+.env.production
+uploads/*
+!uploads/.gitkeep
+.DS_Store
+*.log
+.vscode
+.idea
+*.swp
+*.swo
+*~
