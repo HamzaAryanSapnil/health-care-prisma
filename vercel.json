@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "bun install && bun run build:all",
+  "buildCommand": "bun install && bun run build",
   "installCommand": "bun install",
   "routes": [
     {
