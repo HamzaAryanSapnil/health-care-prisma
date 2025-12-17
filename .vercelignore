@@ -1,0 +1,13 @@
+node_modules
+src
+*.md
+.env.local
+.env.development
+.env.test
+.git
+.gitignore
+tsconfig.json
+prisma/schema/migrations
+uploads
+Old_Backend_Done
+
