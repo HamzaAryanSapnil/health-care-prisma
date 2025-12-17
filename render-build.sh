@@ -7,6 +7,5 @@ bun run db:generate
 bun run db:migrate
 bun run db:push
 bun run db:pull
-bun run db:studio
 bun run db:seed
 bun run dev
