@@ -14,54 +14,85 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fileUploader = void 0;
 const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
 const cloudinary_1 = require("cloudinary");
 const config_1 = __importDefault(require("../config"));
-const fs_1 = __importDefault(require("fs"));
-const storage = multer_1.default.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path_1.default.join(process.cwd(), '/uploads'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    }
+// Configure Cloudinary once
+cloudinary_1.v2.config({
+    cloud_name: config_1.default.cloudinary.cloud_name,
+    api_key: config_1.default.cloudinary.api_key,
+    api_secret: config_1.default.cloudinary.api_secret
 });
+// File size limit: 2MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+// Supported image formats
+const ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/x-icon',
+    'image/vnd.microsoft.icon',
+    'image/ico'
+];
+// File filter to validate image types
+const fileFilter = (req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+        cb(null, true);
+    }
+    else {
+        cb(new Error(`Invalid file type. Only image formats are allowed: ${ALLOWED_IMAGE_TYPES.join(', ')}`));
+    }
+};
+// Use memory storage for buffer (works in deployment/serverless)
+const storage = multer_1.default.memoryStorage();
+// Configure multer with memory storage, file size limit, and file type validation
+const upload = (0, multer_1.default)({
+    storage: storage,
+    limits: {
+        fileSize: MAX_FILE_SIZE
+    },
+    fileFilter: fileFilter
+});
+/**
+ * Upload file buffer to Cloudinary
+ * @param file - Multer file object with buffer
+ * @returns Cloudinary upload result
+ */
 function uploadToCloudinary(file) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Configuration
-        cloudinary_1.v2.config({
-            cloud_name: config_1.default.cloudinary.cloud_name,
-            api_key: config_1.default.cloudinary.api_key,
-            api_secret: config_1.default.cloudinary.api_secret
-        });
-        // Upload an image
-        const uploadResult = yield cloudinary_1.v2.uploader
-            .upload(file.path, {
-            public_id: `${file.originalname}-${Date.now()}`,
-        })
-            .catch((error) => {
-            throw error;
-        });
-        fs_1.default.unlinkSync(file.path);
-        return uploadResult;
-        // // Optimize delivery by resizing and applying auto-format and auto-quality
-        // const optimizeUrl = cloudinary.url(`${uploadResult?.public_id}`, {
-        //     fetch_format: 'auto',
-        //     quality: 'auto'
-        // });
-        // console.log(optimizeUrl);
-        // // Transform the image: auto-crop to square aspect_ratio
-        // const autoCropUrl = cloudinary.url(`${uploadResult?.public_id}`, {
-        //     crop: 'auto',
-        //     gravity: 'auto',
-        //     width: 500,
-        //     height: 500,
-        // });
-        // console.log(autoCropUrl);    
+        if (!file.buffer) {
+            throw new Error('File buffer is required for upload');
+        }
+        // Validate file size (additional check)
+        if (file.size > MAX_FILE_SIZE) {
+            throw new Error(`File size exceeds the maximum limit of 2MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        }
+        // Validate file type (additional check)
+        if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+            throw new Error(`Invalid file type: ${file.mimetype}. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`);
+        }
+        try {
+            // Convert buffer to data URI format for Cloudinary
+            // Format: data:[<mediatype>][;base64],<data>
+            const base64Data = file.buffer.toString('base64');
+            const dataUri = `data:${file.mimetype};base64,${base64Data}`;
+            // Upload to Cloudinary using buffer (data URI)
+            const uploadResult = yield cloudinary_1.v2.uploader.upload(dataUri, {
+                public_id: `${file.originalname.replace(/\.[^/.]+$/, '')}-${Date.now()}`,
+                resource_type: 'auto', // Auto-detect image/video
+                folder: 'ph-health-care', // Organize files in folder
+            });
+            return uploadResult;
+        }
+        catch (error) {
+            throw new Error(`Failed to upload to Cloudinary: ${error.message}`);
+        }
     });
 }
 ;
-const upload = (0, multer_1.default)({ storage: storage });
 exports.fileUploader = {
     upload,
     uploadToCloudinary

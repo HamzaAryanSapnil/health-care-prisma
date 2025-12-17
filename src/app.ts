@@ -4,8 +4,8 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import cron from 'node-cron';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
-import { AppointmentService } from './app/modules/Appointment/appointment.service';
-import { PaymentController } from './app/modules/Payment/payment.controller';
+import { AppointmentService } from './app/modules/appointment/appointment.service';
+import { PaymentController } from './app/modules/payment/payment.controller';
 import router from './app/routes';
 
 const app: Application = express();
