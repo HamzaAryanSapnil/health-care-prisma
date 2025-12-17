@@ -1,16 +1,11 @@
 {
   "version": 2,
   "buildCommand": "bun install && bun run build:all",
-  "builds": [
-    {
-      "src": "dist/server.js",
-      "use": "@vercel/node"
-    }
-  ],
+  "installCommand": "bun install",
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/server.js"
+      "dest": "/api/index.js"
     }
   ]
 }
