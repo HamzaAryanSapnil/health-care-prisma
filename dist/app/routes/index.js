@@ -8,6 +8,7 @@ const rateLimiter_1 = require("../middlewares/rateLimiter");
 const admin_routes_1 = require("../modules/admin/admin.routes");
 const appointment_routes_1 = require("../modules/appointment/appointment.routes");
 const auth_routes_1 = require("../modules/auth/auth.routes");
+const contact_route_1 = __importDefault(require("../modules/contact/contact.route"));
 const doctor_routes_1 = require("../modules/doctor/doctor.routes");
 const doctorSchedule_routes_1 = require("../modules/doctorSchedule/doctorSchedule.routes");
 const meta_routes_1 = require("../modules/meta/meta.routes");
@@ -72,6 +73,10 @@ const moduleRoutes = [
     {
         path: '/meta',
         route: meta_routes_1.MetaRoutes
+    },
+    {
+        path: '/contact',
+        route: contact_route_1.default
     }
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

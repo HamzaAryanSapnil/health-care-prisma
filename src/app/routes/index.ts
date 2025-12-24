@@ -3,6 +3,7 @@ import { apiLimiter } from '../middlewares/rateLimiter';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AppointmentRoutes } from '../modules/appointment/appointment.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
+import contactRoutes from '../modules/contact/contact.route';
 import { DoctorRoutes } from '../modules/doctor/doctor.routes';
 import { DoctorScheduleRoutes } from '../modules/doctorSchedule/doctorSchedule.routes';
 import { MetaRoutes } from '../modules/meta/meta.routes';
@@ -72,6 +73,10 @@ const moduleRoutes = [
     {
         path: '/meta',
         route: MetaRoutes
+    },
+    {
+        path: '/contact',
+        route: contactRoutes
     }
 ];
 
